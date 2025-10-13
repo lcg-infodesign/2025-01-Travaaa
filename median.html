@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Median - Inside my Data</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #001136; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #00081e;
+            z-index: 100;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .nav-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 18px 0;
+        }
+        .nav-header a {
+            background: #ffb347;
+            color: #001136;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-header a.nav-home {
+            background: none;
+            color: #ffb347;
+            border: none;
+            box-shadow: none;
+        }
+        .nav-header a.nav-home:hover {
+            background: none;
+            color: #ffd580;
+        }
+        .nav-header a:not(.nav-home):hover {
+            background: #ffd580;
+        }
+        .container { max-width: 700px; margin: 120px auto 40px auto; background: #0a1a3a; border-radius: 12px; box-shadow: 0 2px 12px #0006; padding: 38px 38px 32px 38px; }
+        h1 { color: #ffb347; font-size: 2.3em; margin-bottom: 0.2em; text-align: center; }
+        .explain { color: #e0e6f0; font-size: 1.18em; margin-top: 18px; line-height: 1.6; text-align: left; }
+        .value-box { background: #11224a; color: #ffb347; font-size: 1.5em; border-radius: 8px; padding: 18px 24px; margin: 32px 0 18px 0; text-align: center; font-weight: bold; }
+    </style>
+    <style>
+    .center-col3 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 18px;
+        margin-bottom: 0;
+    }
+    #col3-row {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        margin-top: 38px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        max-width: 90vw;
+        overflow-x: visible;
+    }
+    .col3-cell {
+        background: none;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 0;
+        padding: 0 4px;
+        font-size: 1.08em;
+        margin: 0;
+        letter-spacing: 0.2px;
+        text-shadow: 0 2px 8px #000a;
+    }
+    #show-col3-btn {
+        font-size: 1em;
+        padding: 8px 18px;
+        margin: 0 0 0 0;
+        border-radius: 8px;
+        border: none;
+        background: #ffb347;
+        color: #001136;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        display: block;
+    }
+    #show-col3-btn:hover {
+        background: #ffd580;
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+    function median(arr) {
+        const s = [...arr].sort((a, b) => a - b);
+        const mid = Math.floor(s.length / 2);
+        return s.length % 2 === 0 ? (s[mid-1] + s[mid]) / 2 : s[mid];
+    }
+    let col3Filtered = [];
+    let col3Visible = false;
+    function toggleCol3() {
+        const row = document.getElementById('col3-row');
+        if (!col3Visible) {
+            row.innerHTML = '';
+            // Ordina i numeri in ordine crescente
+            const sorted = [...col3Filtered].sort((a, b) => a - b);
+            sorted.forEach(val => {
+                const cell = document.createElement('div');
+                cell.className = 'col3-cell';
+                cell.textContent = val;
+                row.appendChild(cell);
+            });
+            row.style.display = 'flex';
+            col3Visible = true;
+        } else {
+            row.innerHTML = '';
+            row.style.display = 'none';
+            col3Visible = false;
+        }
+    }
+    window.onload = function() {
+        fetch('dataset.csv')
+            .then(response => response.text())
+            .then(csv => {
+                Papa.parse(csv, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const dati = results.data;
+                        const filtrati = dati.filter(r => parseFloat(r.column2) < 0 && parseInt(r.column3) % 3 === 0);
+                        col3Filtered = filtrati.map(r => parseFloat(r.column3)).filter(Number.isFinite); // column3 = quarta colonna
+                        const med = col3Filtered.length ? median(col3Filtered) : 'N/A';
+                        document.getElementById('median-value').textContent = (typeof med === 'number') ? med.toFixed(2) : med;
+                        document.getElementById('show-col3-btn').onclick = toggleCol3;
+                        // Aggiorna spiegazione con i valori reali
+                        const sorted = [...col3Filtered].sort((a, b) => a - b);
+                        document.getElementById('col3-explanation').textContent = sorted.join(', ');
+                    }
+                });
+            });
+    };
+    </script>
+</head>
+<body>
+    <header>
+        <nav class="nav-header">
+            <a href="index.html" class="nav-home">Back to home</a>
+            <a href="filtrati.html">My dataset</a>
+            <a href="media-p5.html">Mean</a>
+            <a href="standard-deviation.html">Standard Deviation</a>
+            <a href="moda.html">Mode</a>
+            <a href="median.html">Median</a>
+            <a href="mean-std.html" id="meanstd-link">Mean and Standard Deviation</a>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Median</h1>
+        <div class="explain">
+            The <b>median</b> is the value separating the higher half from the lower half of a data sample. Here, it is calculated on the fourth column of the filtered data.<br>
+        </div>
+        <div class="value-box">
+            Median: <span id="median-value">...</span>
+        </div>
+    </div>
+    <div class="center-col3">
+        <button id="show-col3-btn">Show fourth column</button>
+        <div id="col3-row" style="display:none;"></div>
+        <div style="max-width:900px;margin:32px auto 0 auto;text-align:center;color:#e0e6f0;font-size:1.08em;line-height:1.6;">
+            These values were sorted in ascending order. Since the number of values is even, the median is the average of the two central values, <span style="color:#ffb347;">-6</span> and <span style="color:#ffb347;">0</span>. Their average is <span style="color:#ffb347;">-3</span>, which is the median shown above.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Mean and Standard Deviation</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Stili di base per la pagina e l'header */
+        body { background: #001136; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #00081e;
+            z-index: 100;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .nav-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 18px 0;
+        }
+        .nav-header a {
+            background: #ffb347;
+            color: #001136;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-header a.nav-home {
+            background: none;
+            color: #ffb347;
+            border: none;
+            box-shadow: none;
+        }
+        .nav-header a.nav-home:hover {
+            background: none;
+            color: #ffd580;
+        }
+        .nav-header a:not(.nav-home):hover {
+            background: #ffd580;
+        }
+        h1 { color: #ffb347; font-size: 2.3em; margin: 160px auto 0 auto; text-align: center; }
+    </style>
+    <!-- Carica la libreria per leggere il CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+    // Calcola la media di un array numerico
+    function mean(arr) {
+        return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+    // Calcola la deviazione standard di un array numerico
+    function std(arr) {
+        const m = mean(arr);
+        return Math.sqrt(arr.reduce((acc, v) => acc + Math.pow(v - m, 2), 0) / arr.length);
+    }
+    // Array per i valori filtrati della quinta colonna
+    let col4Filtered = [];
+    // Stato di visibilità della lista valori
+    let col4Visible = false;
+    // Mostra o nasconde i valori della quinta colonna filtrata
+    function toggleCol4() {
+        const row = document.getElementById('col4-row');
+        if (!col4Visible) {
+            row.innerHTML = '';
+            // Ordina i valori in ordine crescente
+            const sorted = [...col4Filtered].sort((a, b) => a - b);
+            sorted.forEach(val => {
+                const cell = document.createElement('div');
+                cell.className = 'col4-cell';
+                cell.textContent = val;
+                row.appendChild(cell);
+            });
+            row.style.display = 'flex';
+            col4Visible = true;
+        } else {
+            row.innerHTML = '';
+            row.style.display = 'none';
+            col4Visible = false;
+        }
+    }
+    // Al caricamento della pagina, carica e filtra il dataset
+    window.onload = function() {
+        fetch('dataset.csv')
+            .then(response => response.text())
+            .then(csv => {
+                Papa.parse(csv, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const dati = results.data;
+                        // Filtra secondo le regole: column2 < 0 e column3 multiplo di 3
+                        const filtrati = dati.filter(r => parseFloat(r.column2) < 0 && parseInt(r.column3) % 3 === 0);
+                        // Estrai la quinta colonna come numeri
+                        col4Filtered = filtrati.map(r => parseFloat(r.column4)).filter(Number.isFinite);
+                        // Calcola media e deviazione standard
+                        const mean4 = col4Filtered.length ? mean(col4Filtered) : 'N/A';
+                        const std4 = col4Filtered.length ? std(col4Filtered) : 'N/A';
+                        // Aggiorna i valori nella pagina
+                        document.getElementById('mean4').textContent = (typeof mean4 === 'number') ? mean4.toFixed(2) : mean4;
+                        document.getElementById('std4').textContent = (typeof std4 === 'number') ? std4.toFixed(2) : std4;
+                        // Collega il bottone per mostrare i valori
+                        document.getElementById('show-col4-btn').onclick = toggleCol4;
+                        // Mostra i valori ordinati nella spiegazione
+                        const sorted = [...col4Filtered].sort((a, b) => a - b);
+                        document.getElementById('col4-explanation').textContent = sorted.join(', ');
+                    }
+                });
+            });
+    };
+    </script>
+</head>
+<body>
+    <!-- HEADER DI NAVIGAZIONE -->
+    <header>
+        <nav class="nav-header">
+            <a href="index.html" class="nav-home">Back to home</a>
+            <a href="filtrati.html">My dataset</a>
+            <a href="media-p5.html">Mean</a>
+            <a href="standard-deviation.html">Standard Deviation</a>
+            <a href="moda.html">Mode</a>
+            <a href="median.html">Median</a>
+            <a href="mean-std.html" id="meanstd-link">Mean and Standard Deviation</a>
+        </nav>
+    </header>
+
+    <!-- TITOLO PRINCIPALE -->
+    <h1>Mean and Standard Deviation</h1>
+
+    <!-- VISUALIZZAZIONI P5.JS: mean e std -->
+    <div style="display:flex;justify-content:center;align-items:flex-start;gap:40px;margin-top:40px;">
+        <!-- Qui p5.js inserirà il grafico della media -->
+        <div id="grafico-meanstd"></div>
+        <!-- Qui p5.js inserirà il grafico della deviazione standard -->
+        <div id="grafico-std"></div>
+    </div>
+
+
+    <!-- SPIEGAZIONE STATISTICA -->
+    <div style="max-width:900px;margin:48px auto 0 auto;color:#e0e6f0;font-size:1.18em;line-height:1.6;text-align:center;">
+        <p>
+            <b>Mean</b> (<span id="mean4">...</span>) is the average of all values in the fifth column. It tells us the central value around which the data points are distributed.<br><br>
+            <b>Standard deviation</b> (<span id="std4">...</span>) measures how spread out these values are from the mean. A high standard deviation means the values are more dispersed, while a low value would indicate they are closer to the mean. In this case, the values are quite spread out around the mean.
+        </p>
+        <div style="margin-top:18px;">
+            <button id="show-col4-btn" style="font-size:1em;padding:8px 18px;border-radius:8px;border:none;background:#ffb347;color:#001136;font-weight:bold;cursor:pointer;">Show values</button>
+            <div id="col4-row" style="display:none;margin-top:10px;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+    </div>
+
+    <!-- CARICAMENTO LIBRERIE P5.JS E SKETCH -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="mean-std-p5.js"></script>
+    <script src="mean-std-std-p5.js"></script>
+</body>
+</html>

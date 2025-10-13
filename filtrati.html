@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My dataset - Filtered values</title>
+    <style>
+        body { background: #001136; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            /* Header fisso  */
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #00081e;
+            z-index: 100;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .nav-header {
+            /* Barra orizzontale */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 18px 0;
+        }
+        .nav-header a {
+            background: #ffb347;
+            color: #001136;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-header a.nav-home {
+            background: none;
+            color: #ffb347;
+            border: none;
+            box-shadow: none;
+        }
+        .nav-header a.nav-home:hover {
+            background: none;
+            color: #ffd580;
+        }
+        .nav-header a:not(.nav-home):hover {
+            background: #ffd580;
+        }
+        .container { max-width: 900px; margin: 110px auto 40px auto; background: #0a1a3a; border-radius: 12px; box-shadow: 0 2px 12px #0006; padding: 32px; }
+        h1 { font-size: 2.2em; margin-bottom: 0.2em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { padding: 8px 12px; text-align: center; }
+        th { background: #193a6a; }
+        tr:nth-child(even) { background: #11224a; }
+        tr:nth-child(odd) { background: #0a1a3a; }
+        .note { color: #b3c6e7; font-size: 1em; margin-top: 18px; }
+        .results { background: #11224a; border-radius: 8px; padding: 18px 24px; margin: 30px 0 18px 0; }
+        .results h2 { font-size: 1.3em; color: #ffb347; margin-bottom: 12px; }
+        .results ul { margin: 0; padding-left: 18px; }
+        .results li { margin-bottom: 7px; }
+        .dataset-link {
+            display: block;
+            margin-bottom: 18px;
+            color: #ffb347;
+            font-weight: bold;
+            font-size: 1.08em;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .dataset-link:hover {
+            color: #ffd580;
+            text-decoration: underline;
+        }
+    </style>
+    <!-- Carica la libreria per leggere il CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+    // Funzioni statistiche da calcolare
+    const mean = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const std = arr => { const m = mean(arr); return Math.sqrt(arr.reduce((acc, v) => acc + (v - m) ** 2, 0) / arr.length); };
+    const mode = arr => { const f = {}; arr.forEach(v => f[v] = (f[v]||0)+1); let max=0, res=[]; for (let k in f) { if (f[k]>max) { max=f[k]; res=[k]; } else if (f[k]===max) res.push(k); } return res.length===1?res[0]:res.join(', '); };
+    const median = arr => { const s = [...arr].sort((a,b)=>a-b), mid = Math.floor(s.length/2); return s.length%2===0 ? (s[mid-1]+s[mid])/2 : s[mid]; };
+    // Carica e filtra il dataset
+    window.onload = function() {
+        fetch('dataset.csv')
+            .then(r => r.text())
+            .then(csv => {
+                Papa.parse(csv, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const dati = results.data;
+                        // Filtra secondo le regole
+                        const filtrati = dati.filter(r => parseFloat(r.column2) < 0 && parseInt(r.column3) % 3 === 0);
+                        // Estrai colonne filtrate
+                        const col = i => filtrati.map(r => parseFloat(r[`column${i}`])).filter(Number.isFinite);
+                        const mean0 = col(0).length ? mean(col(0)) : 'N/A';
+                        const std1 = col(1).length ? std(col(1)) : 'N/A';
+                        const mode2 = col(2).length ? mode(col(2)) : 'N/A';
+                        const median3 = col(3).length ? median(col(3)) : 'N/A';
+                        const mean4 = col(4).length ? mean(col(4)) : 'N/A';
+                        const std4 = col(4).length ? std(col(4)) : 'N/A';
+                        // Mostra risultati
+                        document.getElementById('results').innerHTML = `
+                        <h2>Required results</h2>
+                        <ul>
+                            <li><b>Mean of the first column:</b> ${typeof mean0 === 'number' ? mean0.toFixed(2) : mean0}</li>
+                            <li><b>Standard deviation of the second column:</b> ${typeof std1 === 'number' ? std1.toFixed(2) : std1}</li>
+                            <li><b>Mode of the third column:</b> ${mode2}</li>
+                            <li><b>Median of the fourth column:</b> ${typeof median3 === 'number' ? median3.toFixed(2) : median3}</li>
+                            <li><b>Mean of the fifth column:</b> ${typeof mean4 === 'number' ? mean4.toFixed(2) : mean4}</li>
+                            <li><b>Standard deviation of the fifth column:</b> ${typeof std4 === 'number' ? std4.toFixed(2) : std4}</li>
+                        </ul>`;
+                        // Riempie la tabella
+                        const table = document.getElementById('tabella');
+                        filtrati.forEach(row => {
+                            const tr = document.createElement('tr');
+                            Object.values(row).forEach(val => {
+                                const td = document.createElement('td');
+                                td.textContent = val;
+                                tr.appendChild(td);
+                            });
+                            table.appendChild(tr);
+                        });
+                        document.getElementById('count').textContent = filtrati.length;
+                    }
+                });
+            });
+    };
+    </script>
+</head>
+<body>
+    <!-- Header di navigazione tra le pagine statistiche -->
+    <header>
+        <nav class="nav-header">
+            <a href="index.html" class="nav-home">Back to home</a>
+            <a href="filtrati.html">My dataset</a>
+            <a href="media-p5.html">Mean</a>
+            <a href="standard-deviation.html">Standard Deviation</a>
+            <a href="moda.html">Mode</a>
+            <a href="median.html">Median</a>
+            <a href="mean-std.html" id="meanstd-link">Mean and Standard Deviation</a>
+        </nav>
+    </header>
+    <!-- Contenuto principale: titolo, note, tabella e risultati -->
+    <div class="container">
+        <h1>My dataset - Filtered values</h1>
+        <a class="dataset-link" href="https://github.com/lcg-infodesign/2025-01-Travaaa/blob/main/fedetrava/dataset.csv" target="_blank" rel="noopener">View original dataset on GitHub</a>
+        <div class="note">Only rows where <b>column2 &lt; 0</b> and <b>column3</b> is a multiple of 3 are shown.</div>
+        <div class="note">Rows found: <span id="count">0</span></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>column0</th>
+                    <th>column1</th>
+                    <th>column2</th>
+                    <th>column3</th>
+                    <th>column4</th>
+                </tr>
+            </thead>
+            <tbody id="tabella"></tbody>
+        </table>
+        <div class="results" id="results"></div>
+    </div>
+</body>
+</html>

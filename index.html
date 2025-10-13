@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Inside my Data - Home</title>
+    <!-- Stili principali per layout, header e contenuti -->
+    <style>
+        body { background: #001136; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            /* Header fisso in alto con sfondo scuro */
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #00081e;
+            z-index: 100;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .nav-header {
+            /* Barra di navigazione orizzontale */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 18px 0;
+        }
+        .nav-header a {
+            /* Stile dei link di navigazione */
+            background: #ffb347;
+            color: #001136;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-header a.nav-home {
+            /* Link "Back to home" evidenziato */
+            background: none;
+            color: #ffb347;
+            border: none;
+            box-shadow: none;
+        }
+        .nav-header a.nav-home:hover {
+            background: none;
+            color: #ffd580;
+        }
+        .nav-header a:not(.nav-home):hover {
+            background: #ffd580;
+        }
+        .container {
+            /* Contenitore centrale per titolo e contenuti */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 110px;
+        }
+        .project-row {
+            /* Layout a due colonne: descrizione e link esterni */
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 38px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        h1.title-main {
+            font-family: 'Baloo 2', Arial, sans-serif;
+            font-size: 4.2em;
+            margin-bottom: 0.2em;
+            color: #ffb347;
+            font-weight: bold;
+            margin-top: 48px;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+        }
+        .title-main span.letter {
+            display: inline-block;
+            transition: color 0.18s;
+            cursor: pointer;
+        }
+        .title-main span.letter:hover {
+            color: #fff;
+        }
+        .subtitle { color: #b3c6e7; font-size: 1.1em; margin-bottom: 30px; }
+        .explain {
+            /* Box descrizione progetto */
+            background: #11224a;
+            border-radius: 8px;
+            padding: 28px 32px 22px 32px;
+            margin: 36px 0 0 0;
+            max-width: 700px;
+            color: #e0e6f0;
+            font-size: 1.13em;
+            line-height: 1.6;
+            text-align: left;
+            box-shadow: 0 2px 12px #0006;
+        }
+        .external-links {
+            /* Box con link esterni */
+            background: #11224a;
+            border-radius: 8px;
+            padding: 28px 32px 22px 32px;
+            margin: 38px auto 0 auto;
+            min-width: 260px;
+            color: #e0e6f0;
+            font-size: 1.08em;
+            box-shadow: 0 2px 12px #0006;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            height: fit-content;
+            align-items: center;
+            max-width: 340px;
+        }
+        .external-links a {
+            color: #ffb347;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.08em;
+            transition: color 0.2s;
+        }
+        .external-links a:hover {
+            color: #ffd580;
+            text-decoration: underline;
+        }
+        .explain h2 {
+            color: #fff;
+            font-size: 2em;
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-family: 'Baloo 2', Arial, sans-serif;
+            font-weight: bold;
+        }
+        .explain ul {
+            margin: 10px 0 10px 30px;
+            color: #ffb347;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header per navigare tra le pagine statistiche -->
+    <header>
+        <nav class="nav-header">
+            <a href="index.html" class="nav-home">Back to home</a>
+            <a href="filtrati.html">My dataset</a>
+            <a href="media-p5.html">Mean</a>
+            <a href="standard-deviation.html">Standard Deviation</a>
+            <a href="moda.html">Mode</a>
+            <a href="median.html">Median</a>
+            <a href="mean-std.html" id="meanstd-link">Mean and Standard Deviation</a>
+        </nav>
+    </header>
+    <!-- Contenuto principale: titolo, descrizione progetto, link -->
+    <div class="container">
+        <h1 class="title-main" id="main-title"></h1>
+        <div class="subtitle" style="text-align:center;">Computergrafica per l'Information Design</div>
+        <div class="project-row">
+            <div style="flex:1; min-width:0;">
+                <div class="explain">
+                    <h2>Project Overview</h2>
+                    <!-- Descrizione -->
+                    This project is part of the first assignment for the Information Design course at Politecnico di Milano.<br>
+                    Each student was given a personal dataset and a set of unique rules to determine which rows are valid. Once the valid data is identified, the task is to analyze it and display several statistical measures using p5.js.<br><br>
+                    Specifically, the project focuses on calculating and representing:
+                    <ul>
+                        <li>the mean of the first column,</li>
+                        <li>the standard deviation of the second column,</li>
+                        <li>the mode of the third column,</li>
+                        <li>the median of the fourth column, and</li>
+                        <li>both the mean and standard deviation of the fifth column.</li>
+                    </ul>
+                    The visualization includes two graphical and two textual representations, plus a fifth element that is freely designed.<br>
+                    Through this exercise, the goal is to explore how numerical data can be translated into meaningful visual forms, making statistics more intuitive and engaging through design and interaction.
+                </div>
+            </div>
+            <div class="external-links" style="margin-top:38px;">
+                <!-- Link esterni -->
+                <a href="https://github.com/lcg-infodesign/2025-01-Travaaa" target="_blank" rel="noopener">GitHub Class</a>
+                <a href="https://www11.ceda.polimi.it/schedaincarico/schedaincarico/controller/scheda_pubblica/SchedaPublic.do?&evn_default=evento&c_classe=859974&lang=IT&__pj0=0&__pj1=da7431a4c4ca43bb4aeba6d816e93464" target="_blank" rel="noopener">Course Website</a>
+            </div>
+        </div>
+    </div>
+    <!-- Script per effetto hover sulle lettere del titolo -->
+    <script>
+    // Effetto: ogni lettera del titolo diventa bianca al passaggio del mouse
+    const title = "Inside my Data";
+    const titleElem = document.getElementById("main-title");
+    titleElem.innerHTML = Array.from(title).map(char => {
+        if (char === ' ') return '<span class="letter" style="width:0.5em;display:inline-block;">&nbsp;</span>';
+        return `<span class="letter">${char}</span>`;
+    }).join('');
+    </script>

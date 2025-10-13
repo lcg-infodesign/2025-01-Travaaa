@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Standard Deviation - Inside my Data</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background: #001136; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: #00081e;
+            z-index: 100;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .nav-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            padding: 18px 0;
+        }
+        .nav-header a {
+            background: #ffb347;
+            color: #001136;
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+        }
+        .nav-header a.nav-home {
+            background: none;
+            color: #ffb347;
+            border: none;
+            box-shadow: none;
+        }
+        .nav-header a.nav-home:hover {
+            background: none;
+            color: #ffd580;
+        }
+        .nav-header a:not(.nav-home):hover {
+            background: #ffd580;
+        }
+        .container { max-width: 700px; margin: 120px auto 40px auto; background: #0a1a3a; border-radius: 12px; box-shadow: 0 2px 12px #0006; padding: 38px 38px 32px 38px; }
+        h1 { color: #ffb347; font-size: 2.3em; margin-bottom: 0.2em; text-align: center; }
+        .explain { color: #e0e6f0; font-size: 1.18em; margin-top: 18px; line-height: 1.6; text-align: left; }
+        .value-box { background: #11224a; color: #ffb347; font-size: 1.5em; border-radius: 8px; padding: 18px 24px; margin: 32px 0 18px 0; text-align: center; font-weight: bold; }
+    </style>
+    <style>
+    .center-col1 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 18px;
+        margin-bottom: 0;
+    }
+    #col1-row {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        margin-top: 38px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        max-width: 90vw;
+        overflow-x: auto;
+    }
+    .col1-cell {
+        background: none;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 0;
+        padding: 0 4px;
+        font-size: 1.08em;
+        margin: 0;
+        letter-spacing: 0.2px;
+        text-shadow: 0 2px 8px #000a;
+    }
+    #show-col1-btn {
+        font-size: 1em;
+        padding: 8px 18px;
+        margin: 0 0 0 0;
+        border-radius: 8px;
+        border: none;
+        background: #ffb347;
+        color: #001136;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+        display: block;
+    }
+    #show-col1-btn:hover {
+        background: #ffd580;
+    }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+    function std(arr) {
+        const m = arr.reduce((a, b) => a + b, 0) / arr.length;
+        return Math.sqrt(arr.reduce((acc, v) => acc + Math.pow(v - m, 2), 0) / arr.length);
+    }
+    let col1Filtered = [];
+    let col1Visible = false;
+    function toggleCol1() {
+        const row = document.getElementById('col1-row');
+        if (!col1Visible) {
+            row.innerHTML = '';
+            // Ordina i numeri in ordine crescente
+            const sorted = [...col1Filtered].sort((a, b) => a - b);
+            sorted.forEach(val => {
+                const cell = document.createElement('div');
+                cell.className = 'col1-cell';
+                cell.textContent = val;
+                row.appendChild(cell);
+            });
+            row.style.display = 'flex';
+            col1Visible = true;
+        } else {
+            row.innerHTML = '';
+            row.style.display = 'none';
+            col1Visible = false;
+        }
+    }
+    // Aggiorno la spiegazione con i valori reali e la media
+    window.onload = function() {
+        fetch('dataset.csv')
+            .then(response => response.text())
+            .then(csv => {
+                Papa.parse(csv, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        const dati = results.data;
+                        const filtrati = dati.filter(r => parseFloat(r.column2) < 0 && parseInt(r.column3) % 3 === 0);
+                        col1Filtered = filtrati.map(r => parseFloat(r.column1)).filter(Number.isFinite);
+                        const std1 = col1Filtered.length ? std(col1Filtered) : 'N/A';
+                        document.getElementById('std-value').textContent = (typeof std1 === 'number') ? std1.toFixed(2) : std1;
+                        document.getElementById('show-col1-btn').onclick = toggleCol1;
+                        // Aggiorna spiegazione con i valori reali e la media
+                        const sorted = [...col1Filtered].sort((a, b) => a - b);
+                        document.getElementById('col1-explanation').textContent = sorted.join(', ');
+                        const mean = sorted.reduce((a, b) => a + b, 0) / sorted.length;
+                        document.getElementById('mean-col1').textContent = mean.toFixed(2);
+                    }
+                });
+            });
+    };
+    </script>
+</head>
+<body>
+    <header>
+        <nav class="nav-header">
+            <a href="index.html" class="nav-home">Back to home</a>
+            <a href="filtrati.html">My dataset</a>
+            <a href="media-p5.html">Mean</a>
+            <a href="standard-deviation.html">Standard Deviation</a>
+            <a href="moda.html">Mode</a>
+            <a href="median.html">Median</a>
+            <a href="mean-std.html" id="meanstd-link">Mean and Standard Deviation</a>
+        </nav>
+    </header>
+    <div class="container">
+        <h1>Standard Deviation</h1>
+        <div class="explain">
+            The <b>standard deviation</b> is a measure of how spread out numbers are in a dataset. Here, it is calculated on the <b>second column</b> of the filtered data.<br>
+            A low standard deviation means the values are close to the mean, while a high value indicates more variability.
+        </div>
+        <div class="value-box">
+            Standard deviation: <span id="std-value">...</span>
+        </div>
+    </div>
+    <div class="center-col1">
+        <button id="show-col1-btn">Show second column</button>
+        <div id="col1-row" style="display:none;"></div>
+        <div style="max-width:900px;margin:32px auto 0 auto;text-align:center;color:#e0e6f0;font-size:1.08em;line-height:1.6;">
+            For each value, the mean is subtracted and the result is squared. All these squared differences are added together and divided by the number of values to get the average squared difference. The square root of this average gives the standard deviation: <span style="color:#ffb347;">63.1</span> (rounded to one decimal place).</p>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
